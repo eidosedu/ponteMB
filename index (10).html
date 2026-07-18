@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PONTE - Professor</title>
+    <style>
+        /* ================= ESTÉTICA FLAT & CLEAN ================= */
+        :root {
+            --bg-color: #ffffff;
+            --surface-color: #f8f9fa;
+            --border-color: #e0e0e0;
+            --text-main: #202124;
+            --text-muted: #5f6368;
+            --primary: #1a73e8;
+            --primary-light: #e8f0fe;
+            --danger: #d93025;
+            --success: #1e8e3e;
+            --warning: #f29900;
+        }
+
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--surface-color); color: var(--text-main);
+            display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+        }
+
+        .icon { width: 24px; height: 24px; fill: currentColor; }
+        .hidden { display: none !important; }
+
+        /* ================= HEADER ================= */
+        .header {
+            background-color: var(--bg-color); height: 60px; display: flex; align-items: center;
+            justify-content: space-between; padding: 0 16px; border-bottom: 1px solid var(--border-color); flex-shrink: 0;
+        }
+        .header-title { font-size: 1.2rem; font-weight: 600; display: flex; align-items: center; gap: 12px; }
+        .btn-icon { background: transparent; border: none; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: background 0.2s; }
+        .btn-icon:active { background-color: var(--surface-color); }
+
+        /* ================= VIEWS ================= */
+        .view-container { flex: 1; overflow-y: auto; padding: 16px; display: none; background-color: var(--surface-color); }
+        .view-container.active { display: block; }
+
+        /* ================= HOME VIEW ================= */
+        .card-aluno { background-color: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 16px; cursor: pointer; }
+        .card-aluno:active { border-color: var(--primary); }
+        .avatar { width: 48px; height: 48px; background-color: var(--primary-light); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .aluno-info h3 { font-size: 1.1rem; margin-bottom: 4px; }
+        .aluno-info p { font-size: 0.85rem; color: var(--text-muted); }
+        .fab { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; background-color: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3); border: none; z-index: 100; cursor: pointer; }
+
+        /* ================= REGISTRO DIÁRIO VIEW ================= */
+        .registro-section { background-color: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-bottom: 16px; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .section-title { font-size: 1rem; font-weight: 600; margin-bottom: 12px; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; }
+        .section-subtitle { font-size: 0.8rem; font-weight: normal; color: var(--text-muted); }
+        
+        /* CHIPS */
+        .chips-container { display: flex; flex-wrap: wrap; gap: 8px; }
+        .chip { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 20px; font-size: 0.9rem; color: var(--text-muted); background-color: var(--bg-color); transition: all 0.2s; user-select: none; cursor: pointer; }
+        .chip.active { background-color: var(--primary-light); color: var(--primary); border-color: var(--primary); font-weight: 500; }
+        /* Variantes de cores para categorias */
+        .chip.univ { border-style: dashed; }
+        .chip.univ.active { border-style: solid; }
+
+        /* TERMÔMETRO */
+        .termometro { display: flex; justify-content: space-between; align-items: flex-end; height: 60px; padding: 0 16px; margin-bottom: 8px; }
+        .barra-sinal { width: 16%; background-color: var(--border-color); border-radius: 4px 4px 0 0; transition: background-color 0.2s; }
+        .barra-sinal[data-nivel="1"] { height: 20%; } .barra-sinal[data-nivel="2"] { height: 40%; }
+        .barra-sinal[data-nivel="3"] { height: 60%; } .barra-sinal[data-nivel="4"] { height: 80%; }
+        .barra-sinal[data-nivel="5"] { height: 100%; }
+        .barra-sinal.active.nivel-1 { background-color: var(--danger); }
+        .barra-sinal.active.nivel-2 { background-color: #f28b82; }
+        .barra-sinal.active.nivel-3 { background-color: var(--warning); }
+        .barra-sinal.active.nivel-4 { background-color: #81c995; }
+        .barra-sinal.active.nivel-5 { background-color: var(--success); }
+        .termometro-legenda { text-align: center; font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+
+        /* FORMS & ARQUIVOS */
+        .form-control { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem; background: var(--bg-color); resize: vertical; }
+        .form-control:focus { outline: none; border-color: var(--primary); }
+
+        .btn-anexo { width: 100%; padding: 14px; border: 2px dashed var(--border-color); border-radius: 8px; background-color: var(--surface-color); color: var(--primary); font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 16px; cursor: pointer; }
+        
+        .anexos-lista { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; }
+        .anexos-lista::-webkit-scrollbar { height: 6px; }
+        .anexos-lista::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        .card-anexo { position: relative; width: 90px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; padding: 8px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--surface-color); }
+        .card-anexo .preview { width: 40px; height: 40px; border-radius: 4px; object-fit: cover; margin-bottom: 6px; }
+        .card-anexo .file-icon { width: 40px; height: 40px; color: var(--text-muted); margin-bottom: 6px; }
+        .card-anexo .nome-arquivo { font-size: 0.7rem; color: var(--text-muted); width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
+        .btn-remover-anexo { position: absolute; top: -6px; right: -6px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .btn-remover-anexo svg { width: 14px; height: 14px; fill: white; }
+
+        .btn-salvar-registro { width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; margin-top: 8px; cursor: pointer; }
+
+        /* ================= MODAIS ================= */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: var(--bg-color); width: 100%; max-width: 400px; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; }
+        .modal-header { padding: 16px; border-bottom: 1px solid var(--border-color); font-weight: 600; font-size: 1.1rem; }
+        .modal-body { padding: 16px; }
+        .modal-footer { padding: 12px 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 8px; background: var(--surface-color); }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
+        .btn { padding: 10px 16px; border: none; border-radius: 4px; font-size: 0.9rem; font-weight: 500; cursor: pointer; }
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
+        .btn-primary { background: var(--primary); color: white; }
+        .modal-alert { text-align: center; } .modal-alert .modal-body { padding: 24px 16px; } .modal-alert .modal-footer { justify-content: center; }
+
+    </style>
+</head>
+<body>
+
+    <input type="file" id="input-arquivo" style="display: none;" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" multiple>
+
+    <header class="header">
+        <div class="header-title" id="header-title">PONTE</div>
+        <button class="btn-icon" onclick="abrirModal('modal-config')">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+        </button>
+    </header>
+
+    <main id="view-home" class="view-container active">
+        <div id="lista-alunos"></div>
+        <button class="fab" onclick="abrirModal('modal-add-aluno')">
+            <svg class="icon" viewBox="0 0 24 24" style="fill: white;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        </button>
+    </main>
+
+    <main id="view-registro" class="view-container">
+        
+        <!-- PASSO 1: NATUREZA (Sempre visível) -->
+        <div class="registro-section" id="sec-natureza">
+            <div class="section-title">1. O que estamos fazendo hoje? <span class="section-subtitle">(Escolha 1)</span></div>
+            <div class="chips-container" id="chips-natureza"></div>
+        </div>
+
+        <!-- PASSO 2: ÁREA DE DESENVOLVIMENTO (Aparece após Passo 1) -->
+        <div class="registro-section hidden" id="sec-area">
+            <div class="section-title">2. Área de Foco <span class="section-subtitle">(Escolha 1)</span></div>
+            <div class="chips-container" id="chips-area"></div>
+        </div>
+
+        <!-- PASSO 3: RECURSOS (Aparece após Passo 2 e é filtrado) -->
+        <div class="registro-section hidden" id="sec-recursos">
+            <div class="section-title">3. Estratégias e Recursos <span class="section-subtitle">(Múltiplos)</span></div>
+            <div class="chips-container" id="chips-recursos"></div>
+        </div>
+
+        <!-- PASSO 4: ENGAJAMENTO, DETALHES E ANEXOS (Aparece junto com Passo 3) -->
+        <div id="sec-finais" class="hidden">
+            <div class="registro-section">
+                <div class="section-title">Termômetro de Engajamento</div>
+                <div class="termometro">
+                    <div class="barra-sinal" data-nivel="1" onclick="setEngajamento(1)"></div>
+                    <div class="barra-sinal" data-nivel="2" onclick="setEngajamento(2)"></div>
+                    <div class="barra-sinal" data-nivel="3" onclick="setEngajamento(3)"></div>
+                    <div class="barra-sinal" data-nivel="4" onclick="setEngajamento(4)"></div>
+                    <div class="barra-sinal" data-nivel="5" onclick="setEngajamento(5)"></div>
+                </div>
+                <div class="termometro-legenda" id="legenda-engajamento">Toque para avaliar (1 a 5)</div>
+            </div>
+
+            <div class="registro-section">
+                <div class="section-title">Observações (Opcional)</div>
+                <textarea id="registro-detalhes" class="form-control" rows="3" placeholder="Comportamentos imprevisíveis, recusas, falas importantes..."></textarea>
+            </div>
+
+            <div class="registro-section">
+                <div class="section-title">Evidências</div>
+                <button class="btn-anexo" onclick="abrirSeletorArquivo()">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                    Anexar Arquivos (Fotos, PDFs, DOCs)
+                </button>
+                <div class="anexos-lista" id="lista-anexos-ui"></div>
+            </div>
+
+            <button class="btn-salvar-registro" onclick="salvarRegistro()">Salvar Registro Diário</button>
+        </div>
+    </main>
+
+    <!-- MODAIS -->
+    <div class="modal-overlay" id="modal-config">
+        <div class="modal">
+            <div class="modal-header">Configurações</div>
+            <div class="modal-body">
+                <div class="form-group"><label>Professor</label><input type="text" id="cfg-prof" class="form-control"></div>
+                <div class="form-group"><label>Turma</label><input type="text" id="cfg-sala" class="form-control"></div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-outline" onclick="fecharModal('modal-config')">Cancelar</button><button class="btn btn-primary" onclick="salvarConfig()">Salvar</button></div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="modal-add-aluno">
+        <div class="modal">
+            <div class="modal-header">Vincular Aluno</div>
+            <div class="modal-body"><input type="text" id="add-nome" class="form-control" placeholder="Nome"></div>
+            <div class="modal-footer"><button class="btn btn-outline" onclick="fecharModal('modal-add-aluno')">Cancelar</button><button class="btn btn-primary" onclick="adicionarAluno()">Adicionar</button></div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="modal-alerta">
+        <div class="modal modal-alert">
+            <div class="modal-body" id="alerta-msg">Mensagem</div>
+            <div class="modal-footer"><button class="btn btn-primary" onclick="fecharModal('modal-alerta')">Entendi</button></div>
+        </div>
+    </div>
+
+    <script>
+        // ================= TAXONOMIA & ESTADO =================
+        const taxonomia = {
+            natureza: [
+                "Avaliação Somativa", "Avaliação Formativa", "Análise de Repertório", "Teste de Preferências",
+                "Treino de Repertório", "Acolhimento / Vínculo", "Introdução de Conteúdo", "Revisão / Fixação"
+            ],
+            areas: [
+                "Matemática", "Português", "Ciências", "Pré-alfabetização",
+                "Habilidades Pré-escolares", "Vida Diária (AVD)", "Libras", "Rotina Visual", "Hab. Sociais / Emocional"
+            ],
+            recursos: {
+                "Matemática": ["Ábaco", "Material Dourado", "Jogos de Lógica", "Tangram", "Tarefa Impressa", "Resolução de Problemas"],
+                "Português": ["Alfabeto Móvel", "Fichas de Leitura", "Roda de Leitura", "Ateliê de Escrita", "Tarefa Impressa", "Consciência Fonológica"],
+                "Pré-alfabetização": ["Alfabeto Móvel", "Massa de Modelar", "Pareamento de Imagens", "Grafomotricidade", "Cantigas/Rimas"],
+                "Habilidades Pré-escolares": ["Blocos de Montar", "Separar por Cores/Formas", "Alinhavo", "Pintura a Dedo"],
+                "Vida Diária (AVD)": ["Treino de Higiene", "Alimentação Autônoma", "Vestuário", "Organização do Material"],
+                "Rotina Visual": ["Pranchas de CAA", "Painel de Parede", "Fichas de Antecipação", "Cronômetro Visual"],
+                "Hab. Sociais / Emocional": ["Roleplay", "Dinâmica de Grupo", "Cartões de Emoções", "Tempo de Pausa (Sensorial)", "Jogos Colaborativos"],
+                "default": ["Atividade no Caderno", "Livro Didático", "Discussão em Grupo", "Leitura Guiada"]
+            },
+            universais: ["Audiovisual", "Jogos Digitais", "Material em Velcro", "Lúdico Livre"]
+        };
+
+        let db; 
+        let anexosSessao = []; 
+        let engajamentoAtual = 0;
+        let historicoTelas = ['home']; 
+        let alunos = [{ id: 1, nome: "Lucas Almeida", info: "PDI Ativo" }];
+        
+        let selecaoAtual = { natureza: null, area: null, recursos: [] };
+
+        const SVG_FILE = `<svg class="file-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>`;
+        const SVG_REMOVE = `<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`;
+
+        // ================= INDEXED DB (Limpeza 30 dias) =================
+        function iniciarBanco() {
+            const request = indexedDB.open("PonteArquivosDB", 1);
+            request.onupgradeneeded = e => { if (!e.target.result.objectStoreNames.contains("arquivos")) e.target.result.createObjectStore("arquivos", { keyPath: "id" }); };
+            request.onsuccess = e => { db = e.target.result; executarLimpeza(); };
+        }
+        function executarLimpeza() {
+            const store = db.transaction(["arquivos"], "readwrite").objectStore("arquivos");
+            const limite = Date.now() - (30 * 24 * 60 * 60 * 1000);
+            store.openCursor().onsuccess = e => {
+                const cursor = e.target.result;
+                if (cursor) { if (cursor.value.timestamp < limite) store.delete(cursor.primaryKey); cursor.continue(); }
+            };
+        }
+
+        // ================= GAVETAS DINÂMICAS =================
+        function renderizarNatureza() {
+            const container = document.getElementById('chips-natureza');
+            container.innerHTML = '';
+            taxonomia.natureza.forEach(item => {
+                const btn = document.createElement('div');
+                btn.className = 'chip'; btn.innerText = item;
+                btn.onclick = () => selecionarNatureza(item, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        function selecionarNatureza(valor, elemento) {
+            selecaoAtual.natureza = valor;
+            destacarUnico(document.getElementById('chips-natureza'), elemento);
+            document.getElementById('sec-area').classList.remove('hidden');
+            renderizarAreas();
+        }
+
+        function renderizarAreas() {
+            const container = document.getElementById('chips-area');
+            container.innerHTML = '';
+            taxonomia.areas.forEach(item => {
+                const btn = document.createElement('div');
+                btn.className = 'chip'; btn.innerText = item;
+                btn.onclick = () => selecionarArea(item, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        function selecionarArea(valor, elemento) {
+            selecaoAtual.area = valor;
+            selecaoAtual.recursos = []; // Reseta recursos se mudar de área
+            destacarUnico(document.getElementById('chips-area'), elemento);
+            document.getElementById('sec-recursos').classList.remove('hidden');
+            document.getElementById('sec-finais').classList.remove('hidden');
+            renderizarRecursos();
+        }
+
+        function renderizarRecursos() {
+            const container = document.getElementById('chips-recursos');
+            container.innerHTML = '';
+            const listaEspecifica = taxonomia.recursos[selecaoAtual.area] || taxonomia.recursos["default"];
+            
+            // Renderiza Específicos
+            listaEspecifica.forEach(item => criarChipRecurso(item, container));
+            // Renderiza Universais
+            taxonomia.universais.forEach(item => criarChipRecurso(item, container, true));
+        }
+
+        function criarChipRecurso(valor, container, isUniversal = false) {
+            const btn = document.createElement('div');
+            btn.className = isUniversal ? 'chip univ' : 'chip';
+            btn.innerText = valor;
+            btn.onclick = function() {
+                this.classList.toggle('active');
+                if(this.classList.contains('active')) selecaoAtual.recursos.push(valor);
+                else selecaoAtual.recursos = selecaoAtual.recursos.filter(r => r !== valor);
+            };
+            container.appendChild(btn);
+        }
+
+        function destacarUnico(container, elementoAtivo) {
+            container.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            elementoAtivo.classList.add('active');
+        }
+
+        function resetarFormulario() {
+            selecaoAtual = { natureza: null, area: null, recursos: [] };
+            document.getElementById('sec-area').classList.add('hidden');
+            document.getElementById('sec-recursos').classList.add('hidden');
+            document.getElementById('sec-finais').classList.add('hidden');
+            document.getElementById('registro-detalhes').value = '';
+            document.querySelectorAll('.chip.active').forEach(c => c.classList.remove('active'));
+            
+            engajamentoAtual = 0;
+            document.querySelectorAll('.barra-sinal').forEach(b => b.classList.remove('active', 'nivel-1', 'nivel-2', 'nivel-3', 'nivel-4', 'nivel-5'));
+            document.getElementById('legenda-engajamento').innerText = "Toque para avaliar (1 a 5)";
+            
+            anexosSessao = [];
+            renderListaAnexos();
+        }
+
+        // ================= KODULAR BRIDGE =================
+        function handleAndroidBack() {
+            const modaisAtivos = document.querySelectorAll('.modal-overlay.active');
+            if (modaisAtivos.length > 0) { modaisAtivos[modaisAtivos.length - 1].classList.remove('active'); return; }
+            if (historicoTelas[historicoTelas.length - 1] === 'registro') { navegarPara('home'); return; }
+            if (window.AppInventor) window.AppInventor.setWebViewString("FECHAR_APP");
+        }
+
+        // ================= ARQUIVOS E ANEXOS =================
+        function abrirSeletorArquivo() { document.getElementById('input-arquivo').click(); }
+        
+        document.getElementById('input-arquivo').addEventListener('change', function(e) {
+            for (let file of e.target.files) {
+                const registro = { id: Date.now() + "_" + file.name.replace(/\s/g,''), nome: file.name, tipo: file.type, blob: file, timestamp: Date.now() };
+                const tr = db.transaction(["arquivos"], "readwrite");
+                tr.objectStore("arquivos").put(registro);
+                tr.oncomplete = () => { anexosSessao.push(registro); renderListaAnexos(); };
+            }
+            this.value = '';
+        });
+
+        function deletarArquivo(id) {
+            const tr = db.transaction(["arquivos"], "readwrite");
+            tr.objectStore("arquivos").delete(id);
+            tr.oncomplete = () => { anexosSessao = anexosSessao.filter(a => a.id !== id); renderListaAnexos(); };
+        }
+
+        function renderListaAnexos() {
+            const container = document.getElementById('lista-anexos-ui');
+            container.innerHTML = '';
+            anexosSessao.forEach(a => {
+                const card = document.createElement('div'); card.className = 'card-anexo';
+                let visual = SVG_FILE;
+                if (a.tipo.startsWith('image/')) {
+                    const url = URL.createObjectURL(a.blob);
+                    visual = `<img src="${url}" class="preview">`;
+                }
+                card.innerHTML = `${visual}<div class="nome-arquivo">${a.nome}</div><button class="btn-remover-anexo" onclick="deletarArquivo('${a.id}')">${SVG_REMOVE}</button>`;
+                container.appendChild(card);
+            });
+        }
+
+        // ================= FLUXO PRINCIPAL =================
+        function inicializarApp() {
+            iniciarBanco();
+            renderizarNatureza();
+            renderListaAlunos();
+            document.getElementById('header-title').innerText = "PONTE";
+        }
+
+        function navegarPara(tela, alunoId = null) {
+            document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-' + tela).classList.add('active');
+            
+            if (tela === 'home') { historicoTelas = ['home']; } 
+            else if (tela === 'registro') {
+                historicoTelas.push('registro');
+                resetarFormulario();
+                const aluno = alunos.find(a => a.id === alunoId);
+                document.getElementById('header-title').innerHTML = `<button class="btn-icon" onclick="handleAndroidBack()" style="padding:0; margin-right:4px;"><svg class="icon" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button> Registro: ${aluno.nome.split(' ')[0]}`;
+            }
+        }
+
+        function renderListaAlunos() {
+            const container = document.getElementById('lista-alunos'); container.innerHTML = '';
+            alunos.forEach(aluno => {
+                const card = document.createElement('div'); card.className = 'card-aluno'; card.onclick = () => navegarPara('registro', aluno.id);
+                card.innerHTML = `<div class="avatar"><svg class="icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div><div class="aluno-info"><h3>${aluno.nome}</h3><p>${aluno.info}</p></div>`;
+                container.appendChild(card);
+            });
+        }
+
+        function setEngajamento(nivel) {
+            engajamentoAtual = nivel;
+            document.querySelectorAll('.barra-sinal').forEach(b => {
+                b.classList.remove('active', 'nivel-1', 'nivel-2', 'nivel-3', 'nivel-4', 'nivel-5');
+                if (parseInt(b.getAttribute('data-nivel')) <= nivel) b.classList.add('active', `nivel-${nivel}`);
+            });
+        }
+
+        function salvarRegistro() {
+            if(!selecaoAtual.natureza || !selecaoAtual.area) { mostrarAlerta("Preencha a Natureza e a Área da atividade."); return; }
+            if(engajamentoAtual === 0) { mostrarAlerta("Avalie o engajamento do aluno."); return; }
+            
+            mostrarAlerta("Registro diário salvo e pronto para envio via WebViewString!");
+            setTimeout(() => { fecharModal('modal-alerta'); navegarPara('home'); }, 1500);
+        }
+
+        // Utils
+        function abrirModal(id) { document.getElementById(id).classList.add('active'); }
+        function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
+        function mostrarAlerta(msg) { document.getElementById('alerta-msg').innerText = msg; abrirModal('modal-alerta'); }
+        function salvarConfig() { fecharModal('modal-config'); }
+        function adicionarAluno() { const n = document.getElementById('add-nome').value; if(n) { alunos.push({ id: Date.now(), nome: n, info: "Novo Aluno" }); renderListaAlunos(); fecharModal('modal-add-aluno'); } }
+
+        window.onload = inicializarApp;
+    </script>
+</body>
+</html>
