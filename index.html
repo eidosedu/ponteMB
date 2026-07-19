@@ -3,443 +3,811 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PONTE - Professor</title>
+    <meta name="theme-color" content="#ffffff">
+    <link rel="manifest" href="manifest.json">
+    <title>PONTE - Eidos</title>
     <style>
-        /* ================= ESTÉTICA FLAT & CLEAN ================= */
+        /* ================= ESTÉTICA FLAT, CLEAN & PROFISSIONAL ================= */
         :root {
             --bg-color: #ffffff;
             --surface-color: #f8f9fa;
-            --border-color: #e0e0e0;
+            --surface-hover: #f1f3f4;
+            --border-color: #dadce0;
             --text-main: #202124;
             --text-muted: #5f6368;
             --primary: #1a73e8;
             --primary-light: #e8f0fe;
             --danger: #d93025;
+            --danger-light: #fce8e6;
             --success: #1e8e3e;
+            --success-light: #e6f4ea;
             --warning: #f29900;
+            --pei-color: #8e24aa;
+            --pei-light: #f3e5f5;
         }
 
-        * {
-            margin: 0; padding: 0; box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background-color: var(--surface-color); color: var(--text-main);
-            display: flex; flex-direction: column; height: 100vh; overflow: hidden;
-        }
-
-        .icon { width: 24px; height: 24px; fill: currentColor; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--surface-color); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        .icon { width: 22px; height: 22px; fill: currentColor; }
         .hidden { display: none !important; }
 
         /* ================= HEADER ================= */
-        .header {
-            background-color: var(--bg-color); height: 60px; display: flex; align-items: center;
-            justify-content: space-between; padding: 0 16px; border-bottom: 1px solid var(--border-color); flex-shrink: 0;
-        }
-        .header-title { font-size: 1.2rem; font-weight: 600; display: flex; align-items: center; gap: 12px; }
+        .header { background-color: var(--bg-color); height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; z-index: 10; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+        .header-title { font-size: 1.15rem; font-weight: 600; display: flex; align-items: center; gap: 12px; }
         .btn-icon { background: transparent; border: none; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: background 0.2s; }
-        .btn-icon:active { background-color: var(--surface-color); }
+        .btn-icon:active { background-color: var(--surface-hover); }
 
         /* ================= VIEWS ================= */
         .view-container { flex: 1; overflow-y: auto; padding: 16px; display: none; background-color: var(--surface-color); }
-        .view-container.active { display: block; }
+        .view-container.active { display: block; animation: fadeIn 0.2s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .view-container::-webkit-scrollbar { width: 4px; }
+        .view-container::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 
-        /* ================= HOME VIEW ================= */
-        .card-aluno { background-color: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 16px; cursor: pointer; }
-        .card-aluno:active { border-color: var(--primary); }
-        .avatar { width: 48px; height: 48px; background-color: var(--primary-light); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .aluno-info h3 { font-size: 1.1rem; margin-bottom: 4px; }
-        .aluno-info p { font-size: 0.85rem; color: var(--text-muted); }
-        .fab { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; background-color: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3); border: none; z-index: 100; cursor: pointer; }
-
-        /* ================= REGISTRO DIÁRIO VIEW ================= */
-        .registro-section { background-color: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-bottom: 16px; animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        /* ================= GERAIS & FAB ================= */
+        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; text-align: center; color: var(--text-muted); padding: 24px; }
+        .empty-state svg { width: 64px; height: 64px; fill: var(--border-color); margin-bottom: 16px; }
         
-        .section-title { font-size: 1rem; font-weight: 600; margin-bottom: 12px; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; }
-        .section-subtitle { font-size: 0.8rem; font-weight: normal; color: var(--text-muted); }
+        .fab { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; background-color: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3); border: none; z-index: 100; cursor: pointer; transition: transform 0.1s; }
+        .fab:active { transform: scale(0.95); }
+        .fab.fab-pei { background-color: var(--pei-color); box-shadow: 0 4px 12px rgba(142, 36, 170, 0.3); }
         
-        /* CHIPS */
-        .chips-container { display: flex; flex-wrap: wrap; gap: 8px; }
-        .chip { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 20px; font-size: 0.9rem; color: var(--text-muted); background-color: var(--bg-color); transition: all 0.2s; user-select: none; cursor: pointer; }
-        .chip.active { background-color: var(--primary-light); color: var(--primary); border-color: var(--primary); font-weight: 500; }
-        /* Variantes de cores para categorias */
-        .chip.univ { border-style: dashed; }
-        .chip.univ.active { border-style: solid; }
+        .btn-largo { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: 600; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .btn-primario { background-color: var(--primary); color: white; }
+        .btn-primario:active { background-color: #1557b0; }
+        .btn-secundario { background-color: var(--bg-color); color: var(--primary); border: 1px solid var(--border-color); }
+        .btn-secundario:active { background-color: var(--primary-light); }
+        .btn-pei-btn { background-color: var(--pei-color); color: white; }
+        .btn-outline-pei { background-color: var(--bg-color); color: var(--pei-color); border: 1px dashed var(--pei-color); }
 
-        /* TERMÔMETRO */
-        .termometro { display: flex; justify-content: space-between; align-items: flex-end; height: 60px; padding: 0 16px; margin-bottom: 8px; }
-        .barra-sinal { width: 16%; background-color: var(--border-color); border-radius: 4px 4px 0 0; transition: background-color 0.2s; }
-        .barra-sinal[data-nivel="1"] { height: 20%; } .barra-sinal[data-nivel="2"] { height: 40%; }
-        .barra-sinal[data-nivel="3"] { height: 60%; } .barra-sinal[data-nivel="4"] { height: 80%; }
-        .barra-sinal[data-nivel="5"] { height: 100%; }
-        .barra-sinal.active.nivel-1 { background-color: var(--danger); }
-        .barra-sinal.active.nivel-2 { background-color: #f28b82; }
-        .barra-sinal.active.nivel-3 { background-color: var(--warning); }
-        .barra-sinal.active.nivel-4 { background-color: #81c995; }
-        .barra-sinal.active.nivel-5 { background-color: var(--success); }
-        .termometro-legenda { text-align: center; font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
-
-        /* FORMS & ARQUIVOS */
-        .form-control { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem; background: var(--bg-color); resize: vertical; }
+        /* ================= FORMS & SECTIONS ================= */
+        .form-section { background-color: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+        .form-section.destaque-comportamento { border-color: #fad2cf; background-color: #fce8e6; }
+        .form-section-title { font-size: 1rem; font-weight: 700; color: var(--text-main); margin-bottom: 16px; border-bottom: 1px solid var(--surface-hover); padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .form-section-title svg { width: 20px; height: 20px; fill: currentColor; }
+        
+        .form-group { margin-bottom: 16px; }
+        .form-group:last-child { margin-bottom: 0; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px; }
+        .form-group .help-text { font-size: 0.75rem; color: var(--text-muted); font-weight: normal; }
+        
+        .form-control { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.95rem; background: var(--bg-color); color: var(--text-main); }
         .form-control:focus { outline: none; border-color: var(--primary); }
+        select.form-control { appearance: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="%235f6368"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+        select.form-control:disabled { background-color: var(--surface-hover); color: var(--text-muted); opacity: 0.8; }
 
-        .btn-anexo { width: 100%; padding: 14px; border: 2px dashed var(--border-color); border-radius: 8px; background-color: var(--surface-color); color: var(--primary); font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 16px; cursor: pointer; }
+        /* COMPONENTES DE SELEÇÃO RÁPIDA */
+        .list-box { max-height: 160px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); }
+        .destaque-comportamento .list-box { border-color: #fad2cf; }
+        .list-box label { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid var(--surface-hover); margin: 0; font-size: 0.9rem; cursor: pointer; }
+        .list-box label:last-child { border-bottom: none; }
+        .list-box input[type="checkbox"], .list-box input[type="radio"] { margin-right: 12px; transform: scale(1.2); accent-color: var(--primary); }
+        .destaque-comportamento .list-box input[type="checkbox"] { accent-color: var(--danger); }
+        .pei-context .list-box input { accent-color: var(--pei-color); }
         
-        .anexos-lista { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; }
-        .anexos-lista::-webkit-scrollbar { height: 6px; }
-        .anexos-lista::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-        .card-anexo { position: relative; width: 90px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; padding: 8px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--surface-color); }
-        .card-anexo .preview { width: 40px; height: 40px; border-radius: 4px; object-fit: cover; margin-bottom: 6px; }
-        .card-anexo .file-icon { width: 40px; height: 40px; color: var(--text-muted); margin-bottom: 6px; }
-        .card-anexo .nome-arquivo { font-size: 0.7rem; color: var(--text-muted); width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
-        .btn-remover-anexo { position: absolute; top: -6px; right: -6px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .btn-remover-anexo svg { width: 14px; height: 14px; fill: white; }
+        /* TOGGLES & SLIDERS */
+        .toggle-switch { position: relative; display: inline-block; width: 48px; height: 26px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-color); transition: .3s; border-radius: 26px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(22px); }
 
-        .btn-salvar-registro { width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; margin-top: 8px; cursor: pointer; }
+        .range-slider { width: 100%; margin-top: 8px; accent-color: var(--pei-color); }
+        .range-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
+
+        .tags-container { display: flex; flex-wrap: wrap; gap: 8px; border: 1px solid var(--border-color); padding: 8px; border-radius: 6px; background: var(--bg-color); min-height: 48px; align-items: center; }
+        .tag-pill { background: var(--pei-light); color: var(--pei-color); padding: 4px 10px; border-radius: 16px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; font-weight: 500; }
+        .tag-pill svg { width: 14px; height: 14px; cursor: pointer; fill: currentColor; }
+        .tag-input { border: none; outline: none; flex: 1; min-width: 120px; font-size: 0.95rem; background: transparent; color: var(--text-main); }
+
+        /* ESCALA REGULAÇÃO DIÁRIA */
+        .escala-regulacao { display: flex; justify-content: space-between; gap: 4px; margin-top: 8px; }
+        .btn-escala { flex: 1; padding: 12px 0; border: 1px solid var(--border-color); background: var(--surface-color); border-radius: 6px; font-weight: 600; font-size: 1rem; color: var(--text-muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s; }
+        .btn-escala span { font-size: 0.65rem; font-weight: 500; text-transform: uppercase; }
+        .btn-escala.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); transform: scale(1.05); z-index: 2; box-shadow: 0 2px 6px rgba(26,115,232,0.2); }
+
+        /* METAS DINÂMICAS PEI */
+        .meta-card { background: var(--surface-color); border: 1px solid var(--border-color); border-left: 4px solid var(--pei-color); border-radius: 6px; padding: 12px; margin-bottom: 12px; position: relative; }
+        .btn-remover-meta { position: absolute; top: 8px; right: 8px; background: transparent; border: none; color: var(--danger); cursor: pointer; }
+
+        /* ================= CARDS E TIMELINES ================= */
+        .aluno-row { display: flex; align-items: stretch; gap: 8px; margin-bottom: 12px; }
+        .card-aluno { flex: 1; background-color: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: background 0.1s; }
+        .card-aluno:active { background-color: var(--surface-hover); }
+        .avatar { width: 44px; height: 44px; background-color: var(--primary-light); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1.1rem; }
+        
+        .btn-pei-home { width: 70px; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--pei-color); cursor: pointer; }
+        .btn-pei-home:active { background: var(--pei-light); }
+        .btn-pei-home span { font-size: 0.7rem; font-weight: 700; }
+
+        .pacote-card { background-color: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .pacote-card.clicavel { cursor: pointer; } .pacote-card.clicavel:active { border-color: var(--primary); }
+        .pacote-header { background-color: var(--surface-hover); padding: 14px 16px; font-weight: 600; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        
+        .momento-item { padding: 12px 16px; border-bottom: 1px solid var(--surface-hover); position: relative; }
+        .momento-item:last-child { border-bottom: none; }
+        .momento-titulo { font-weight: 600; font-size: 0.95rem; color: var(--text-main); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;}
+        .badge-pei { background-color: #f3e5f5; color: #8e24aa; font-size: 0.65rem; padding: 2px 6px; border-radius: 12px; font-weight: 600; border: 1px solid #e1bee7; }
+        
+        .btn-text { background: transparent; border: none; color: var(--primary); font-weight: 600; font-size: 0.85rem; cursor: pointer; padding: 4px; }
+        .btn-acao-momento { position: absolute; top: 12px; right: 12px; background: transparent; border: none; padding: 4px; cursor: pointer; color: var(--text-muted); }
+
+        /* ================= RELATÓRIOS E ANEXOS ================= */
+        .report-paper { background: var(--bg-color); border-radius: 8px; padding: 20px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 24px; }
+        .report-head { border-bottom: 2px solid var(--text-main); padding-bottom: 12px; margin-bottom: 16px; }
+        .report-title { font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+        .report-subtitle { font-size: 0.85rem; color: var(--text-muted); display: flex; justify-content: space-between; }
+        
+        /* Diário Viewer */
+        .report-reg-block { background: var(--surface-color); border-radius: 6px; padding: 12px; display: flex; justify-content: space-around; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        .reg-indicador { text-align: center; } .reg-indicador .valor { font-size: 1.2rem; font-weight: 700; color: var(--primary); } .reg-indicador .label { font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
+        .report-momento { border-left: 3px solid var(--primary); padding-left: 12px; margin-bottom: 20px; }
+        .rm-tit { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+        .rm-detalhe { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 4px; }
+        .rm-highlight { background: var(--danger-light); color: var(--danger); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; display: inline-block; margin-top: 4px; font-weight: 600; border: 1px solid #fad2cf; }
+
+        /* PEI Viewer */
+        .pei-viewer-section { margin-bottom: 20px; }
+        .pei-viewer-section h4 { font-size: 0.95rem; color: var(--pei-color); border-bottom: 1px solid var(--surface-hover); padding-bottom: 4px; margin-bottom: 8px; text-transform: uppercase; }
+        .pei-p { font-size: 0.9rem; color: var(--text-main); line-height: 1.5; margin-bottom: 6px; }
+        .pei-badge-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+        .pei-badge { background: var(--surface-color); border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; color: var(--text-muted); }
+        .pei-meta-box { border-left: 3px solid var(--pei-color); padding-left: 12px; margin-bottom: 12px; }
+
+        /* Anexos Diário */
+        .btn-anexo { width: 100%; padding: 12px; border: 2px dashed var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-muted); font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; margin-bottom: 8px; }
+        .anexos-lista { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+        .card-anexo { position: relative; width: 64px; height: 64px; flex-shrink: 0; border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; background: var(--surface-color); }
+        .card-anexo img { width: 100%; height: 100%; object-fit: cover; }
+        .btn-remover-anexo { position: absolute; top: 2px; right: 2px; background: rgba(217, 48, 37, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
         /* ================= MODAIS ================= */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
         .modal-overlay.active { display: flex; }
-        .modal { background: var(--bg-color); width: 100%; max-width: 400px; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; }
-        .modal-header { padding: 16px; border-bottom: 1px solid var(--border-color); font-weight: 600; font-size: 1.1rem; }
-        .modal-body { padding: 16px; }
-        .modal-footer { padding: 12px 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 8px; background: var(--surface-color); }
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
-        .btn { padding: 10px 16px; border: none; border-radius: 4px; font-size: 0.9rem; font-weight: 500; cursor: pointer; }
-        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
-        .btn-primary { background: var(--primary); color: white; }
-        .modal-alert { text-align: center; } .modal-alert .modal-body { padding: 24px 16px; } .modal-alert .modal-footer { justify-content: center; }
-
+        .modal { background: var(--bg-color); width: 100%; max-width: 360px; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 12px 24px rgba(0,0,0,0.2); }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border-color); font-weight: 600; font-size: 1.1rem; }
+        .modal-body { padding: 24px; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 12px; background: var(--surface-hover); }
+        .btn { padding: 10px 16px; border: none; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); }
     </style>
 </head>
 <body>
 
-    <input type="file" id="input-arquivo" style="display: none;" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" multiple>
+    <input type="file" id="input-arquivo" style="display: none;" accept="image/*,.pdf" multiple>
 
     <header class="header">
-        <div class="header-title" id="header-title">PONTE</div>
+        <div class="header-title" id="header-title">EIDOS PONTE</div>
         <button class="btn-icon" onclick="abrirModal('modal-config')">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+            <svg class="icon" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.56-1.62-.94l-2.39-.96c-.22-.08-.47 0-.59-.22l-1.92 3.32c-.12-.22-.07-.49-.12-.61l2.03 1.58c-.04.3-.06.61-.06.94s.02.64.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .43-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.49-.12-.61l-2.03-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
         </button>
     </header>
 
+    <!-- ================= VIEW 1: HOME ================= -->
     <main id="view-home" class="view-container active">
+        <div id="estado-zero" class="empty-state hidden">
+            <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+            <h2>Nenhum Aluno</h2><p>Inicie o cadastro no botão abaixo.</p>
+        </div>
         <div id="lista-alunos"></div>
-        <button class="fab" onclick="abrirModal('modal-add-aluno')">
-            <svg class="icon" viewBox="0 0 24 24" style="fill: white;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        <button class="fab" onclick="abrirModal('modal-add-aluno')"><svg class="icon" viewBox="0 0 24 24" fill="white"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></button>
+    </main>
+
+    <!-- ================= VIEW 2: TIMELINE DIÁRIOS ================= -->
+    <main id="view-perfil" class="view-container">
+        <button class="btn-largo btn-primario" onclick="iniciarDia()">
+            <svg class="icon" viewBox="0 0 24 24" fill="white"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+            Preencher Novo Dia
+        </button>
+        <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin: 24px 0 12px; text-transform: uppercase;">Diários Salvos</div>
+        <div id="timeline-container"></div>
+    </main>
+
+    <!-- ================= VIEW 3: RELATÓRIO DO DIÁRIO (PDF) ================= -->
+    <main id="view-relatorio" class="view-container">
+        <div class="report-paper" id="relatorio-conteudo"></div>
+        <button class="btn-largo btn-primario" onclick="gerarPDF_Diario()">
+            <svg class="icon" viewBox="0 0 24 24" fill="white"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM15 9.5h1v-1h-1v1zM3 6c-.55 0-1 .45-1 1v13c0 1.1.9 2 2 2h13c.55 0 1-.45 1-1s-.45-1-1-1H5c-.55 0-1-.45-1-1V7c0-.55-.45-1-1-1z"/></svg>
+            Exportar PDF
+        </button>
+        <button class="btn-largo btn-secundario" onclick="editarPacoteAberto()">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+            Editar Este Dia
         </button>
     </main>
 
-    <main id="view-registro" class="view-container">
-        
-        <!-- PASSO 1: NATUREZA (Sempre visível) -->
-        <div class="registro-section" id="sec-natureza">
-            <div class="section-title">1. O que estamos fazendo hoje? <span class="section-subtitle">(Escolha 1)</span></div>
-            <div class="chips-container" id="chips-natureza"></div>
-        </div>
-
-        <!-- PASSO 2: ÁREA DE DESENVOLVIMENTO (Aparece após Passo 1) -->
-        <div class="registro-section hidden" id="sec-area">
-            <div class="section-title">2. Área de Foco <span class="section-subtitle">(Escolha 1)</span></div>
-            <div class="chips-container" id="chips-area"></div>
-        </div>
-
-        <!-- PASSO 3: RECURSOS (Aparece após Passo 2 e é filtrado) -->
-        <div class="registro-section hidden" id="sec-recursos">
-            <div class="section-title">3. Estratégias e Recursos <span class="section-subtitle">(Múltiplos)</span></div>
-            <div class="chips-container" id="chips-recursos"></div>
-        </div>
-
-        <!-- PASSO 4: ENGAJAMENTO, DETALHES E ANEXOS (Aparece junto com Passo 3) -->
-        <div id="sec-finais" class="hidden">
-            <div class="registro-section">
-                <div class="section-title">Termômetro de Engajamento</div>
-                <div class="termometro">
-                    <div class="barra-sinal" data-nivel="1" onclick="setEngajamento(1)"></div>
-                    <div class="barra-sinal" data-nivel="2" onclick="setEngajamento(2)"></div>
-                    <div class="barra-sinal" data-nivel="3" onclick="setEngajamento(3)"></div>
-                    <div class="barra-sinal" data-nivel="4" onclick="setEngajamento(4)"></div>
-                    <div class="barra-sinal" data-nivel="5" onclick="setEngajamento(5)"></div>
+    <!-- ================= VIEW 4: RASCUNHO DO DIA ================= -->
+    <main id="view-rascunho" class="view-container">
+        <div class="form-section">
+            <div class="form-group" style="margin-bottom:0;">
+                <label>Regulação do Aluno (Diária)</label>
+                <div style="margin-top: 12px; font-size: 0.85rem; font-weight: 600;">Entrada</div>
+                <div class="escala-regulacao" id="escala-entrada">
+                    <div class="btn-escala" onclick="setRegulacao('entrada', 1, this)">1<span>Crise</span></div>
+                    <div class="btn-escala" onclick="setRegulacao('entrada', 2, this)">2<span>Agitado</span></div>
+                    <div class="btn-escala" onclick="setRegulacao('entrada', 3, this)">3<span>Neutro</span></div>
+                    <div class="btn-escala" onclick="setRegulacao('entrada', 4, this)">4<span>Alerta</span></div>
+                    <div class="btn-escala" onclick="setRegulacao('entrada', 5, this)">5<span>Calmo</span></div>
                 </div>
-                <div class="termometro-legenda" id="legenda-engajamento">Toque para avaliar (1 a 5)</div>
+                <div style="margin-top: 16px; font-size: 0.85rem; font-weight: 600;">Saída</div>
+                <div class="escala-regulacao" id="escala-saida">
+                    <div class="btn-escala" onclick="setRegulacao('saida', 1, this)">1<span>Crise</span></div>
+                    <div class="btn-escala" onclick="setRegulacao('saida', 2, this)">2<span>Agitado</span></div>
+                    <div class="btn-escala" onclick="setRegulacao('saida', 3, this)">3<span>Neutro</span></div>
+                    <div class="btn-escala" onclick="setRegulacao('saida', 4, this)">4<span>Alerta</span></div>
+                    <div class="btn-escala" onclick="setRegulacao('saida', 5, this)">5<span>Calmo</span></div>
+                </div>
             </div>
-
-            <div class="registro-section">
-                <div class="section-title">Observações (Opcional)</div>
-                <textarea id="registro-detalhes" class="form-control" rows="3" placeholder="Comportamentos imprevisíveis, recusas, falas importantes..."></textarea>
-            </div>
-
-            <div class="registro-section">
-                <div class="section-title">Evidências</div>
-                <button class="btn-anexo" onclick="abrirSeletorArquivo()">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                    Anexar Arquivos (Fotos, PDFs, DOCs)
-                </button>
-                <div class="anexos-lista" id="lista-anexos-ui"></div>
-            </div>
-
-            <button class="btn-salvar-registro" onclick="salvarRegistro()">Salvar Registro Diário</button>
         </div>
+
+        <div style="font-size: 0.9rem; font-weight: 600; margin: 24px 0 8px;">Ações Realizadas Hoje</div>
+        <div id="lista-momentos-rascunho"></div>
+        
+        <button class="btn-largo btn-secundario" onclick="abrirFormularioMomento()">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Adicionar Tarefa / Momento
+        </button>
+        <button class="btn-largo btn-primario" onclick="finalizarSalvarDia()" id="btn-finalizar-dia">
+            <svg class="icon" viewBox="0 0 24 24" fill="white"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg> Salvar Diário Completo
+        </button>
     </main>
 
-    <!-- MODAIS -->
+    <!-- ================= VIEW 5: FORMULÁRIO DE MOMENTO ================= -->
+    <main id="view-momento" class="view-container">
+        <div class="form-section">
+            <div class="form-group"><label>Natureza da Ação</label><select id="sel-natureza" class="form-control"></select></div>
+            
+            <div class="form-group" id="group-pei-link">
+                <label style="color: var(--pei-color);">Vínculo com o PEI <span class="help-text">(Opcional)</span></label>
+                <select id="sel-pei-link" class="form-control" style="border-color: var(--pei-color); background-color: var(--pei-light);">
+                    <option value="">Sem vínculo direto / Sem PEI</option>
+                </select>
+            </div>
+
+            <div class="form-group"><label>Áreas de Foco</label><div class="list-box" id="list-areas"></div></div>
+            <div class="form-group"><label>Estratégias / Recursos</label><div class="list-box" id="list-recursos"></div></div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-group">
+                <label>Nível de Dica (Prompt)</label>
+                <select id="sel-dica" class="form-control">
+                    <option value="Independência Total">Independência Total</option><option value="Gestual">Gestual</option><option value="Modelação">Modelação</option><option value="Verbal Parcial">Verbal Parcial</option><option value="Verbal Total">Verbal Total</option><option value="Física Parcial">Física Parcial</option><option value="Física Total">Física Total</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Classe de Reforçador</label>
+                <div class="list-box" id="list-reforcos"><label><input type="checkbox" value="Comestível"> Comestível</label><label><input type="checkbox" value="Social"> Social</label><label><input type="checkbox" value="Tangível"> Tangível</label><label><input type="checkbox" value="Sensorial"> Sensorial</label></div>
+                <input type="text" id="reforco-especifico" class="form-control" placeholder="Especifique... (Opcional)" style="margin-top: 8px;">
+            </div>
+            <div class="form-group">
+                <label>Estimativa de Êxito</label>
+                <select id="sel-exito" class="form-control">
+                    <option value="" disabled selected>Selecione...</option><option value="5">5 - Autônomo / Fluente</option><option value="4">4 - Êxito com Apoio Leve</option><option value="3">3 - Baixo Êxito / Apoio Total</option><option value="2">2 - Incompleto / Desistência</option><option value="1">1 - Recusa Total</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-section destaque-comportamento">
+            <div class="form-group"><label style="color: var(--danger);">Mapeamento de Comportamentos <span class="help-text">(Preencha se houver recusa)</span></label></div>
+            <div class="form-group"><label>Topografia</label><div class="list-box" id="list-topografias"><label><input type="checkbox" value="Agressão (Hetero/Auto)"> Agressão (Hetero/Auto)</label><label><input type="checkbox" value="Fuga/Esquiva"> Fuga / Esquiva</label><label><input type="checkbox" value="Estereotipia"> Estereotipia</label><label><input type="checkbox" value="Choro/Gritos"> Choro / Gritos</label><label><input type="checkbox" value="Recusa Física"> Recusa Física</label></div></div>
+            <div class="form-group"><label>Possível Gatilho / Antecedente</label><div class="list-box" id="list-gatilhos"><label><input type="checkbox" value="Transição de Tarefa"> Transição de Tarefa</label><label><input type="checkbox" value="Demanda Alta/Complexa"> Demanda Alta / Complexa</label><label><input type="checkbox" value="Fator Sensorial"> Fator Sensorial</label><label><input type="checkbox" value="Ouvir 'não'"> Ouvir 'não'</label><label><input type="checkbox" value="Acesso Negado"> Acesso Negado</label></div></div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-group"><label>Observações</label><textarea id="momento-detalhes" class="form-control" rows="2"></textarea></div>
+            <div class="form-group"><label>Evidências</label><button class="btn-anexo" onclick="document.getElementById('input-arquivo').click();"><svg class="icon" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Anexar Arquivo</button><div class="anexos-lista" id="lista-anexos-ui"></div></div>
+        </div>
+        <button class="btn-largo btn-primario" onclick="salvarMomentoRascunho()">Confirmar Momento</button>
+    </main>
+
+    <!-- ================= VIEW 6: VIEWER DO PEI ================= -->
+    <main id="view-pei-viewer" class="view-container">
+        <div class="report-paper" id="pei-viewer-conteudo"></div>
+        <button class="btn-largo btn-pei-btn" onclick="editarPEI()">
+            <svg class="icon" viewBox="0 0 24 24" fill="white"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> Editar PEI
+        </button>
+        <button class="btn-largo btn-secundario" onclick="gerarPDF_PEI()">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM15 9.5h1v-1h-1v1zM3 6c-.55 0-1 .45-1 1v13c0 1.1.9 2 2 2h13c.55 0 1-.45 1-1s-.45-1-1-1H5c-.55 0-1-.45-1-1V7c0-.55-.45-1-1-1z"/></svg> Exportar PDF
+        </button>
+    </main>
+
+    <!-- ================= VIEW 7: FORMULÁRIO DO PEI ================= -->
+    <main id="view-pei-form" class="view-container pei-context">
+        <div class="form-section">
+            <div class="form-section-title"><svg viewBox="0 0 24 24" style="fill:var(--pei-color)"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> 1. Identificação</div>
+            <div class="form-group"><label>Aluno</label><input type="text" id="pei-aluno-nome" class="form-control" disabled></div>
+            <div class="form-group"><label>Data de Início</label><input type="date" id="pei-data" class="form-control"></div>
+            <div class="form-group"><label>Período de Vigência</label><select id="pei-vigencia" class="form-control"><option>Bimestral</option><option>Trimestral</option><option>Semestral</option><option>Anual</option></select></div>
+            <div class="form-group" style="display: flex; justify-content: space-between;">
+                <div><label style="margin-bottom:0;">Status do PEI</label><span class="help-text">Rascunho / Ativo</span></div>
+                <label class="toggle-switch"><input type="checkbox" id="pei-status"><span class="slider"></span></label>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-title"><svg viewBox="0 0 24 24" style="fill:var(--pei-color)"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> 2. Perfil Atual</div>
+            <div class="form-group"><label>Comunicação Principal</label><div class="list-box" id="pei-comunicacao"><label><input type="radio" name="comunic" value="Não-verbal"> Não-verbal</label><label><input type="radio" name="comunic" value="CAA / Pecs"> Comunicação Alternativa</label><label><input type="radio" name="comunic" value="Ecolalia"> Ecolalia</label><label><input type="radio" name="comunic" value="Frases curtas"> Frases curtas</label><label><input type="radio" name="comunic" value="Fluente"> Fluente</label></div></div>
+            <div class="form-group"><label>Regulação e Comportamento</label><div class="list-box" id="pei-regulacao"><label><input type="checkbox" value="Fuga de demanda"> Fuga de demanda</label><label><input type="checkbox" value="Agressividade"> Agressividade</label><label><input type="checkbox" value="Estereotipias"> Estereotipias</label><label><input type="checkbox" value="Hipersensibilidade"> Hipersensibilidade</label><label><input type="checkbox" value="Boa regulação geral"> Boa regulação</label></div></div>
+            <div class="form-group"><label>Autonomia (AVDs)</label><input type="range" id="pei-autonomia" class="range-slider" min="1" max="4" value="2"><div class="range-labels"><span>Dependência (1)</span><span>Independente (4)</span></div></div>
+            <div class="form-group"><label>Interesses Fortes</label><div class="tags-container" id="pei-tags-container"><input type="text" id="pei-tag-input" class="tag-input" placeholder="Digite e Enter"></div></div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-title"><svg viewBox="0 0 24 24" style="fill:var(--pei-color)"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 9h-2V7h-2v5H6v2h2v5h2v-5h2v-2z"/></svg> 3. Adaptações</div>
+            <div class="form-group"><label>Mediação Escolar</label><select id="pei-mediacao" class="form-control"><option>AT 100%</option><option>Mediação parcial</option><option>Sem mediador</option></select></div>
+            <div class="form-group"><label>Físicas / Sensoriais</label><div class="list-box" id="pei-adapt-fisica"><label><input type="checkbox" value="Abafador"> Abafador</label><label><input type="checkbox" value="Pausas programadas"> Pausas programadas</label><label><input type="checkbox" value="Mesa adaptada"> Mesa adaptada</label></div></div>
+            <div class="form-group"><label>Curriculares</label><div class="list-box" id="pei-adapt-curr"><label><input type="checkbox" value="Material Concreto"> Material Concreto</label><label><input type="checkbox" value="Apoio Visual"> Apoio Visual</label><label><input type="checkbox" value="Tempo estendido"> Tempo estendido</label></div></div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-title"><svg viewBox="0 0 24 24" style="fill:var(--pei-color)"><path d="M12 2L1 21h22M12 6l7.53 13H4.47"/></svg> 4. Metas e Objetivos</div>
+            <div id="container-metas"></div>
+            <button class="btn-largo btn-outline-pei" onclick="adicionarMetaCard()">+ Adicionar Nova Meta</button>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-title"><svg viewBox="0 0 24 24" style="fill:var(--pei-color)"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/></svg> 5. Observações</div>
+            <div class="form-group"><textarea id="pei-obs" class="form-control" rows="3"></textarea></div>
+        </div>
+        <button class="fab fab-pei" onclick="salvarPEI()"><svg class="icon" viewBox="0 0 24 24" fill="white"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg></button>
+    </main>
+
+    <!-- ================= MODAIS RIGOROSOS ================= -->
     <div class="modal-overlay" id="modal-config">
         <div class="modal">
-            <div class="modal-header">Configurações</div>
-            <div class="modal-body">
-                <div class="form-group"><label>Professor</label><input type="text" id="cfg-prof" class="form-control"></div>
-                <div class="form-group"><label>Turma</label><input type="text" id="cfg-sala" class="form-control"></div>
-            </div>
+            <div class="modal-header">Configurações Eidos</div>
+            <div class="modal-body"><div class="form-group"><label>Professor</label><input type="text" id="cfg-prof" class="form-control"></div><div class="form-group"><label>Turma</label><input type="text" id="cfg-sala" class="form-control"></div></div>
             <div class="modal-footer"><button class="btn btn-outline" onclick="fecharModal('modal-config')">Cancelar</button><button class="btn btn-primary" onclick="salvarConfig()">Salvar</button></div>
         </div>
     </div>
+    
     <div class="modal-overlay" id="modal-add-aluno">
         <div class="modal">
-            <div class="modal-header">Vincular Aluno</div>
-            <div class="modal-body"><input type="text" id="add-nome" class="form-control" placeholder="Nome"></div>
+            <div class="modal-header">Novo Aluno</div>
+            <div class="modal-body"><input type="text" id="add-nome" class="form-control" placeholder="Nome Completo"></div>
             <div class="modal-footer"><button class="btn btn-outline" onclick="fecharModal('modal-add-aluno')">Cancelar</button><button class="btn btn-primary" onclick="adicionarAluno()">Adicionar</button></div>
         </div>
     </div>
-    <div class="modal-overlay" id="modal-alerta">
-        <div class="modal modal-alert">
-            <div class="modal-body" id="alerta-msg">Mensagem</div>
-            <div class="modal-footer"><button class="btn btn-primary" onclick="fecharModal('modal-alerta')">Entendi</button></div>
-        </div>
+    
+    <div class="modal-overlay dismissible" id="modal-alerta">
+        <div class="modal"><div class="modal-body" id="alerta-msg" style="text-align: center; padding: 24px; font-size: 1rem;">MSG</div><div class="modal-footer" style="justify-content: center;"><button class="btn btn-primary" onclick="fecharModal('modal-alerta')">Entendi</button></div></div>
     </div>
 
     <script>
-        // ================= TAXONOMIA & ESTADO =================
-        const taxonomia = {
-            natureza: [
-                "Avaliação Somativa", "Avaliação Formativa", "Análise de Repertório", "Teste de Preferências",
-                "Treino de Repertório", "Acolhimento / Vínculo", "Introdução de Conteúdo", "Revisão / Fixação"
-            ],
-            areas: [
-                "Matemática", "Português", "Ciências", "Pré-alfabetização",
-                "Habilidades Pré-escolares", "Vida Diária (AVD)", "Libras", "Rotina Visual", "Hab. Sociais / Emocional"
-            ],
-            recursos: {
-                "Matemática": ["Ábaco", "Material Dourado", "Jogos de Lógica", "Tangram", "Tarefa Impressa", "Resolução de Problemas"],
-                "Português": ["Alfabeto Móvel", "Fichas de Leitura", "Roda de Leitura", "Ateliê de Escrita", "Tarefa Impressa", "Consciência Fonológica"],
-                "Pré-alfabetização": ["Alfabeto Móvel", "Massa de Modelar", "Pareamento de Imagens", "Grafomotricidade", "Cantigas/Rimas"],
-                "Habilidades Pré-escolares": ["Blocos de Montar", "Separar por Cores/Formas", "Alinhavo", "Pintura a Dedo"],
-                "Vida Diária (AVD)": ["Treino de Higiene", "Alimentação Autônoma", "Vestuário", "Organização do Material"],
-                "Rotina Visual": ["Pranchas de CAA", "Painel de Parede", "Fichas de Antecipação", "Cronômetro Visual"],
-                "Hab. Sociais / Emocional": ["Roleplay", "Dinâmica de Grupo", "Cartões de Emoções", "Tempo de Pausa (Sensorial)", "Jogos Colaborativos"],
-                "default": ["Atividade no Caderno", "Livro Didático", "Discussão em Grupo", "Leitura Guiada"]
-            },
-            universais: ["Audiovisual", "Jogos Digitais", "Material em Velcro", "Lúdico Livre"]
-        };
-
-        let db; 
-        let anexosSessao = []; 
-        let engajamentoAtual = 0;
-        let historicoTelas = ['home']; 
-        let alunos = [{ id: 1, nome: "Lucas Almeida", info: "PDI Ativo" }];
+        // ================= KODULAR BRIDGE & NAVEGAÇÃO =================
+        function receberTextoDoKodular(texto) { console.log(texto); }
         
-        let selecaoAtual = { natureza: null, area: null, recursos: [] };
-
-        const SVG_FILE = `<svg class="file-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>`;
-        const SVG_REMOVE = `<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`;
-
-        // ================= INDEXED DB (Limpeza 30 dias) =================
-        function iniciarBanco() {
-            const request = indexedDB.open("PonteArquivosDB", 1);
-            request.onupgradeneeded = e => { if (!e.target.result.objectStoreNames.contains("arquivos")) e.target.result.createObjectStore("arquivos", { keyPath: "id" }); };
-            request.onsuccess = e => { db = e.target.result; executarLimpeza(); };
-        }
-        function executarLimpeza() {
-            const store = db.transaction(["arquivos"], "readwrite").objectStore("arquivos");
-            const limite = Date.now() - (30 * 24 * 60 * 60 * 1000);
-            store.openCursor().onsuccess = e => {
-                const cursor = e.target.result;
-                if (cursor) { if (cursor.value.timestamp < limite) store.delete(cursor.primaryKey); cursor.continue(); }
-            };
-        }
-
-        // ================= GAVETAS DINÂMICAS =================
-        function renderizarNatureza() {
-            const container = document.getElementById('chips-natureza');
-            container.innerHTML = '';
-            taxonomia.natureza.forEach(item => {
-                const btn = document.createElement('div');
-                btn.className = 'chip'; btn.innerText = item;
-                btn.onclick = () => selecionarNatureza(item, btn);
-                container.appendChild(btn);
-            });
-        }
-
-        function selecionarNatureza(valor, elemento) {
-            selecaoAtual.natureza = valor;
-            destacarUnico(document.getElementById('chips-natureza'), elemento);
-            document.getElementById('sec-area').classList.remove('hidden');
-            renderizarAreas();
-        }
-
-        function renderizarAreas() {
-            const container = document.getElementById('chips-area');
-            container.innerHTML = '';
-            taxonomia.areas.forEach(item => {
-                const btn = document.createElement('div');
-                btn.className = 'chip'; btn.innerText = item;
-                btn.onclick = () => selecionarArea(item, btn);
-                container.appendChild(btn);
-            });
-        }
-
-        function selecionarArea(valor, elemento) {
-            selecaoAtual.area = valor;
-            selecaoAtual.recursos = []; // Reseta recursos se mudar de área
-            destacarUnico(document.getElementById('chips-area'), elemento);
-            document.getElementById('sec-recursos').classList.remove('hidden');
-            document.getElementById('sec-finais').classList.remove('hidden');
-            renderizarRecursos();
-        }
-
-        function renderizarRecursos() {
-            const container = document.getElementById('chips-recursos');
-            container.innerHTML = '';
-            const listaEspecifica = taxonomia.recursos[selecaoAtual.area] || taxonomia.recursos["default"];
-            
-            // Renderiza Específicos
-            listaEspecifica.forEach(item => criarChipRecurso(item, container));
-            // Renderiza Universais
-            taxonomia.universais.forEach(item => criarChipRecurso(item, container, true));
-        }
-
-        function criarChipRecurso(valor, container, isUniversal = false) {
-            const btn = document.createElement('div');
-            btn.className = isUniversal ? 'chip univ' : 'chip';
-            btn.innerText = valor;
-            btn.onclick = function() {
-                this.classList.toggle('active');
-                if(this.classList.contains('active')) selecaoAtual.recursos.push(valor);
-                else selecaoAtual.recursos = selecaoAtual.recursos.filter(r => r !== valor);
-            };
-            container.appendChild(btn);
-        }
-
-        function destacarUnico(container, elementoAtivo) {
-            container.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-            elementoAtivo.classList.add('active');
-        }
-
-        function resetarFormulario() {
-            selecaoAtual = { natureza: null, area: null, recursos: [] };
-            document.getElementById('sec-area').classList.add('hidden');
-            document.getElementById('sec-recursos').classList.add('hidden');
-            document.getElementById('sec-finais').classList.add('hidden');
-            document.getElementById('registro-detalhes').value = '';
-            document.querySelectorAll('.chip.active').forEach(c => c.classList.remove('active'));
-            
-            engajamentoAtual = 0;
-            document.querySelectorAll('.barra-sinal').forEach(b => b.classList.remove('active', 'nivel-1', 'nivel-2', 'nivel-3', 'nivel-4', 'nivel-5'));
-            document.getElementById('legenda-engajamento').innerText = "Toque para avaliar (1 a 5)";
-            
-            anexosSessao = [];
-            renderListaAnexos();
-        }
-
-        // ================= KODULAR BRIDGE =================
         function handleAndroidBack() {
             const modaisAtivos = document.querySelectorAll('.modal-overlay.active');
-            if (modaisAtivos.length > 0) { modaisAtivos[modaisAtivos.length - 1].classList.remove('active'); return; }
-            if (historicoTelas[historicoTelas.length - 1] === 'registro') { navegarPara('home'); return; }
-            if (window.AppInventor) window.AppInventor.setWebViewString("FECHAR_APP");
+            if (modaisAtivos.length > 0) { 
+                if(modaisAtivos[modaisAtivos.length - 1].classList.contains('dismissible')) modaisAtivos[modaisAtivos.length - 1].classList.remove('active'); 
+                return; 
+            }
+            if(historicoTelas.length > 1) {
+                historicoTelas.pop();
+                navegarParaInterno(historicoTelas[historicoTelas.length - 1]);
+            } else {
+                if (window.AppInventor) window.AppInventor.setWebViewString("VOLTAR_MENU");
+            }
         }
 
-        // ================= ARQUIVOS E ANEXOS =================
-        function abrirSeletorArquivo() { document.getElementById('input-arquivo').click(); }
+        // ================= DADOS & ESTADOS =================
+        const tx = {
+            natureza: ["Avaliação Somativa", "Avaliação Formativa", "Análise de Repertório", "Treino de Repertório", "Acolhimento / Vínculo", "Revisão / Fixação"],
+            areas: ["Matemática", "Português", "Ciências", "Pré-alfabetização", "Vida Diária (AVD)", "Hab. Sociais", "Libras", "Rotina Visual"],
+            recursos: ["Material Dourado", "Ábaco", "Alfabeto Móvel", "Massa de Modelar", "Pareamento", "Grafomotricidade", "Higiene", "Pranchas CAA", "Roleplay", "Cartões de Emoções", "Impresso"]
+        };
+        const SVG_EDIT = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`;
+        const SVG_DEL = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`;
+
+        let db; 
+        let historicoTelas = ['home'];
+        let config = JSON.parse(localStorage.getItem('ponte_config')) || { professor: "", sala: "" };
+        let alunos = JSON.parse(localStorage.getItem('ponte_alunos')) || [];
+        let diariosSalvos = JSON.parse(localStorage.getItem('ponte_diarios')) || [];
+        let peisSalvos = JSON.parse(localStorage.getItem('ponte_peis')) || [];
         
+        let alunoAtivoId = null;
+        let pacoteAtivoId = null; 
+        
+        // Estado Rascunho (Diário)
+        let rascunhoDia = []; 
+        let estadoRegulacao = { entrada: 3, saida: 3 };
+        let editandoMomentoId = null;
+        let anexosTemp = []; 
+
+        // Estado PEI
+        let peiState = { tags: [], metas: [] };
+
+        function iniciarBanco() {
+            const req = indexedDB.open("PonteArquivosDB", 1);
+            req.onupgradeneeded = e => { if (!e.target.result.objectStoreNames.contains("arquivos")) e.target.result.createObjectStore("arquivos", { keyPath: "id" }); };
+            req.onsuccess = e => { db = e.target.result; };
+        }
+
+        // ================= NAVEGAÇÃO =================
+        function navegarPara(tela, param = null) {
+            if(historicoTelas[historicoTelas.length - 1] !== tela) historicoTelas.push(tela);
+            navegarParaInterno(tela, param);
+        }
+
+        function navegarParaInterno(tela, param = null) {
+            document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-' + tela).classList.add('active');
+            
+            const btnVoltar = `<button class="btn-icon" onclick="handleAndroidBack()"><svg class="icon" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button>`;
+
+            if (tela === 'home') { 
+                alunoAtivoId = null; 
+                document.getElementById('header-title').innerText = "EIDOS PONTE"; 
+                renderListaAlunos(); 
+            } 
+            else if (tela === 'perfil') {
+                if(param) alunoAtivoId = param;
+                document.getElementById('header-title').innerHTML = `${btnVoltar} Diários`;
+                renderTimelineDiarios();
+            }
+            else if (tela === 'relatorio') {
+                if(param) pacoteAtivoId = param;
+                document.getElementById('header-title').innerHTML = `${btnVoltar} Relatório`;
+                renderRelatorioDiario();
+            }
+            else if (tela === 'rascunho') {
+                document.getElementById('header-title').innerHTML = `${btnVoltar} Dia Letivo`;
+                renderRascunho();
+            }
+            else if (tela === 'momento') {
+                document.getElementById('header-title').innerHTML = `${btnVoltar} Tarefa/Momento`;
+            }
+            else if (tela === 'pei-viewer') {
+                document.getElementById('header-title').innerHTML = `${btnVoltar} Visualizar PEI`;
+                renderPEIViewer();
+            }
+            else if (tela === 'pei-form') {
+                document.getElementById('header-title').innerHTML = `${btnVoltar} Edição do PEI`;
+            }
+        }
+
+        // ================= HOME =================
+        function renderListaAlunos() {
+            const container = document.getElementById('lista-alunos'); const empty = document.getElementById('estado-zero'); container.innerHTML = '';
+            if (alunos.length === 0) { empty.classList.remove('hidden'); return; }
+            empty.classList.add('hidden');
+            
+            alunos.forEach(a => { 
+                container.innerHTML += `
+                <div class="aluno-row">
+                    <div class="card-aluno" onclick="navegarPara('perfil', ${a.id})">
+                        <div class="avatar">${a.nome.charAt(0).toUpperCase()}</div>
+                        <div><h3>${a.nome}</h3><p style="font-size:0.8rem;color:var(--text-muted)">Diários e Registros</p></div>
+                    </div>
+                    <button class="btn-pei-home" onclick="processarAcessoPEI(${a.id})">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                        <span>PEI</span>
+                    </button>
+                </div>`; 
+            });
+        }
+
+        // ================= LÓGICA DO DIÁRIO =================
+        function renderTimelineDiarios() {
+            const container = document.getElementById('timeline-container'); container.innerHTML = '';
+            const pacotes = diariosSalvos.filter(d => d.alunoId === alunoAtivoId).sort((a, b) => b.timestamp - a.timestamp);
+            if(pacotes.length === 0) { container.innerHTML = `<div style="text-align:center; padding:32px; color:var(--text-muted);">Nenhum diário registrado.</div>`; return; }
+
+            pacotes.forEach(pacote => {
+                const dataStr = new Date(pacote.timestamp).toLocaleDateString('pt-BR');
+                container.innerHTML += `
+                    <div class="pacote-card clicavel" onclick="navegarPara('relatorio', '${pacote.id}')">
+                        <div class="pacote-header"><span>Dia: ${dataStr}</span> <span style="font-size:0.8rem; color:var(--primary)">${pacote.momentos.length} Ações</span></div>
+                        <div style="padding:12px 16px; font-size:0.85rem; color:var(--text-muted);">
+                            <strong>Regulação:</strong> Entrada (${pacote.regulacao.entrada}) / Saída (${pacote.regulacao.saida})
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function iniciarDia() {
+            const hojeStr = new Date().toLocaleDateString('pt-BR');
+            const pctHoje = diariosSalvos.find(d => d.alunoId === alunoAtivoId && new Date(d.timestamp).toLocaleDateString('pt-BR') === hojeStr);
+            if (pctHoje) { rascunhoDia = JSON.parse(JSON.stringify(pctHoje.momentos)); estadoRegulacao = pctHoje.regulacao; pacoteAtivoId = pctHoje.id; } 
+            else { rascunhoDia = []; estadoRegulacao = { entrada: 3, saida: 3 }; pacoteAtivoId = null; }
+            atualizarUIEscalaRegulacao(); navegarPara('rascunho');
+        }
+
+        function editarPacoteAberto() {
+            const pct = diariosSalvos.find(d => d.id === pacoteAtivoId);
+            rascunhoDia = JSON.parse(JSON.stringify(pct.momentos)); estadoRegulacao = pct.regulacao;
+            atualizarUIEscalaRegulacao(); navegarPara('rascunho');
+        }
+
+        function renderRascunho() {
+            const container = document.getElementById('lista-momentos-rascunho'); container.innerHTML = '';
+            document.getElementById('btn-finalizar-dia').style.display = rascunhoDia.length > 0 ? 'flex' : 'none';
+            if (rascunhoDia.length === 0) { container.innerHTML = '<div style="text-align:center; padding:24px; color:var(--text-muted); font-size:0.9rem;">Nenhuma ação adicionada.</div>'; return; }
+            
+            rascunhoDia.forEach(m => {
+                container.innerHTML += `
+                    <div class="pacote-card">
+                        <div class="momento-item">
+                            <button class="btn-acao-momento" style="right:40px;" onclick="editarMomento('${m.id}')">${SVG_EDIT}</button>
+                            <button class="btn-acao-momento" onclick="removerMomento('${m.id}')" style="color:var(--danger)">${SVG_DEL}</button>
+                            <div class="momento-titulo">${m.natureza} ${m.pei ? `<span class="badge-pei">PEI</span>` : ''}</div>
+                            <div style="font-size:0.8rem; color:var(--text-muted)">Áreas: ${m.areas.join(', ')}</div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function setRegulacao(tipo, valor, el) {
+            estadoRegulacao[tipo] = valor;
+            const container = document.getElementById(`escala-${tipo}`);
+            container.querySelectorAll('.btn-escala').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        function atualizarUIEscalaRegulacao() {
+            ['entrada', 'saida'].forEach(tipo => {
+                const container = document.getElementById(`escala-${tipo}`);
+                container.querySelectorAll('.btn-escala').forEach(b => b.classList.remove('active'));
+                container.children[estadoRegulacao[tipo] - 1].classList.add('active');
+            });
+        }
+
+        function povoarSelects() {
+            const selNat = document.getElementById('sel-natureza'); selNat.innerHTML = '<option value="" disabled selected>Selecione...</option>';
+            tx.natureza.forEach(n => selNat.innerHTML += `<option value="${n}">${n}</option>`);
+            document.getElementById('list-areas').innerHTML = tx.areas.map(a => `<label><input type="checkbox" value="${a}"> ${a}</label>`).join('');
+            document.getElementById('list-recursos').innerHTML = tx.recursos.sort().map(r => `<label><input type="checkbox" value="${r}"> ${r}</label>`).join('');
+        }
+
+        function atualizarSeletorPEI() {
+            const selPEI = document.getElementById('sel-pei-link');
+            selPEI.innerHTML = '<option value="">Sem vínculo direto / Sem PEI</option>';
+            const p = peisSalvos.find(x => x.alunoId === alunoAtivoId);
+            if(p && p.metas.length > 0) {
+                p.metas.forEach(m => selPEI.innerHTML += `<option value="${m.verbo} ${m.objetivo}">${m.verbo} ${m.objetivo}</option>`);
+            }
+        }
+
+        function abrirFormularioMomento() { 
+            editandoMomentoId = null;
+            document.getElementById('sel-natureza').value = ''; 
+            atualizarSeletorPEI();
+            document.querySelectorAll('.list-box input').forEach(cb => cb.checked = false);
+            document.getElementById('sel-dica').value = 'Independência Total'; document.getElementById('reforco-especifico').value = '';
+            document.getElementById('sel-exito').value = ''; document.getElementById('momento-detalhes').value = '';
+            anexosTemp = []; document.getElementById('lista-anexos-ui').innerHTML = '';
+            navegarPara('momento'); 
+        }
+
+        function editarMomento(id) {
+            abrirFormularioMomento();
+            editandoMomentoId = id;
+            const m = rascunhoDia.find(x => x.id === id);
+            
+            document.getElementById('sel-natureza').value = m.natureza;
+            document.getElementById('sel-pei-link').value = m.pei || '';
+            document.getElementById('sel-dica').value = m.dica;
+            document.getElementById('sel-exito').value = m.exito;
+            document.getElementById('reforco-especifico').value = m.reforcoEspec || '';
+            document.getElementById('momento-detalhes').value = m.detalhes || '';
+            
+            const marcar = (lista, seletor) => lista.forEach(i => { const cb = document.querySelector(`${seletor} input[value="${i}"]`); if(cb) cb.checked = true; });
+            marcar(m.areas, '#list-areas'); marcar(m.recursos, '#list-recursos'); marcar(m.reforcos, '#list-reforcos');
+            if(m.topografias) marcar(m.topografias, '#list-topografias');
+            if(m.gatilhos) marcar(m.gatilhos, '#list-gatilhos');
+        }
+
+        function salvarMomentoRascunho() {
+            const natureza = document.getElementById('sel-natureza').value;
+            const exito = document.getElementById('sel-exito').value;
+            const getVals = (s) => Array.from(document.querySelectorAll(`${s} input:checked`)).map(cb => cb.value);
+            const areas = getVals('#list-areas');
+            
+            if(!natureza || areas.length === 0 || !exito) { mostrarAlerta("Preencha Natureza, Áreas e Êxito."); return; }
+
+            const momento = {
+                id: editandoMomentoId || "mom_" + Date.now(),
+                natureza: natureza, pei: document.getElementById('sel-pei-link').value, areas: areas, recursos: getVals('#list-recursos'),
+                dica: document.getElementById('sel-dica').value, reforcos: getVals('#list-reforcos'), reforcoEspec: document.getElementById('reforco-especifico').value,
+                exito: exito, topografias: getVals('#list-topografias'), gatilhos: getVals('#list-gatilhos'),
+                detalhes: document.getElementById('momento-detalhes').value, anexosIds: anexosTemp.map(a => a.id)
+            };
+
+            if(editandoMomentoId) { const idx = rascunhoDia.findIndex(x => x.id === editandoMomentoId); rascunhoDia[idx] = momento; } 
+            else { rascunhoDia.push(momento); }
+            handleAndroidBack(); 
+        }
+
+        function removerMomento(id) { rascunhoDia = rascunhoDia.filter(m => m.id !== id); renderRascunho(); }
+
+        function finalizarSalvarDia() {
+            if(rascunhoDia.length === 0) return;
+            if (pacoteAtivoId) { 
+                const idx = diariosSalvos.findIndex(d => d.id === pacoteAtivoId);
+                diariosSalvos[idx].momentos = rascunhoDia; diariosSalvos[idx].regulacao = estadoRegulacao;
+            } 
+            else { diariosSalvos.push({ id: "dia_" + Date.now(), alunoId: alunoAtivoId, timestamp: Date.now(), regulacao: estadoRegulacao, momentos: rascunhoDia }); }
+            
+            localStorage.setItem('ponte_diarios', JSON.stringify(diariosSalvos));
+            mostrarAlerta("Diário salvo com sucesso!"); 
+            setTimeout(() => { fecharModal('modal-alerta'); historicoTelas = ['home', 'perfil']; navegarParaInterno('perfil'); }, 1200);
+        }
+
+        function renderRelatorioDiario() {
+            const container = document.getElementById('relatorio-conteudo');
+            const pct = diariosSalvos.find(d => d.id === pacoteAtivoId);
+            const aluno = alunos.find(a => a.id === pct.alunoId);
+            const dataStr = new Date(pct.timestamp).toLocaleDateString('pt-BR');
+            const mapReg = {1:"Crise", 2:"Agitado", 3:"Neutro", 4:"Alerta", 5:"Calmo"};
+            
+            let html = `
+                <div class="report-head"><div class="report-title">Diário de Bordo</div><div class="report-subtitle"><span>Aluno: ${aluno.nome}</span><span>${dataStr}</span></div></div>
+                <div class="report-reg-block">
+                    <div class="reg-indicador"><div class="label">Entrada</div><div class="valor">${pct.regulacao.entrada}</div><div style="font-size:0.65rem">${mapReg[pct.regulacao.entrada]}</div></div>
+                    <div class="reg-indicador"><div class="label">Saída</div><div class="valor">${pct.regulacao.saida}</div><div style="font-size:0.65rem">${mapReg[pct.regulacao.saida]}</div></div>
+                </div><div style="font-weight:600; margin-bottom:12px; color:var(--text-main)">Atividades do Dia:</div>`;
+
+            pct.momentos.forEach((m, i) => {
+                const peiB = m.pei ? `<span style="font-size:0.7rem; color:var(--success); font-weight:600;">(Vínculo PEI)</span>` : '';
+                const alertas = m.topografias && m.topografias.length > 0 ? `<div class="rm-highlight">Comportamentos: ${m.topografias.join(', ')}</div>` : '';
+                html += `
+                <div class="report-momento">
+                    <div class="rm-tit">${i+1}. ${m.natureza} ${peiB}</div>
+                    <div class="rm-detalhe"><strong>Áreas:</strong> ${m.areas.join(', ')}</div>
+                    <div class="rm-detalhe"><strong>Manejo:</strong> Dica ${m.dica} | Êxito: Nível ${m.exito}</div>
+                    ${alertas}${m.detalhes ? `<div class="rm-detalhe" style="margin-top:4px; font-style:italic">"${m.detalhes}"</div>` : ''}
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function gerarPDF_Diario() {
+            const pct = diariosSalvos.find(d => d.id === pacoteAtivoId);
+            if (window.AppInventor) window.AppInventor.setWebViewString('GERAR_PDF:' + JSON.stringify(pct));
+            mostrarAlerta("Comando enviado para o aplicativo gerar o PDF do relatório!");
+        }
+
+        // ================= LÓGICA DO PEI =================
+        function processarAcessoPEI(idAluno) {
+            alunoAtivoId = idAluno;
+            const peiExistente = peisSalvos.find(p => p.alunoId === idAluno);
+            if(peiExistente) { navegarPara('pei-viewer'); } else { iniciarFormularioPEI(false); navegarPara('pei-form'); }
+        }
+
+        function editarPEI() { iniciarFormularioPEI(true); navegarPara('pei-form'); }
+
+        function iniciarFormularioPEI(modoEdicao) {
+            const aluno = alunos.find(a => a.id === alunoAtivoId);
+            document.getElementById('pei-aluno-nome').value = aluno.nome;
+            peiState = { tags: [], metas: [] }; document.getElementById('container-metas').innerHTML = '';
+            
+            if(modoEdicao) {
+                const p = peisSalvos.find(x => x.alunoId === alunoAtivoId);
+                document.getElementById('pei-data').value = p.dataInicio; document.getElementById('pei-vigencia').value = p.vigencia; document.getElementById('pei-status').checked = p.ativo;
+                const rb = document.querySelector(`input[name="comunic"][value="${p.comunicacao}"]`); if(rb) rb.checked = true;
+                const marcar = (s, a) => a.forEach(v => { const cb = document.querySelector(`${s} input[value="${v}"]`); if(cb) cb.checked = true; });
+                marcar('#pei-regulacao', p.regulacao); document.getElementById('pei-autonomia').value = p.autonomia;
+                peiState.tags = [...p.interesses]; renderTags();
+                document.getElementById('pei-mediacao').value = p.mediacao;
+                marcar('#pei-adapt-fisica', p.adaptFisica); marcar('#pei-adapt-curr', p.adaptCurr);
+                p.metas.forEach(m => adicionarMetaCard(m)); document.getElementById('pei-obs').value = p.observacoes;
+            } else {
+                document.getElementById('pei-data').valueAsDate = new Date(); document.getElementById('pei-vigencia').value = "Semestral"; document.getElementById('pei-status').checked = false;
+                document.querySelectorAll('#view-pei-form input[type="radio"], #view-pei-form input[type="checkbox"]:not(#pei-status)').forEach(el => el.checked = false);
+                document.getElementById('pei-autonomia').value = 2; renderTags();
+                document.getElementById('pei-mediacao').value = "AT 100%"; document.getElementById('pei-obs').value = ''; adicionarMetaCard(); 
+            }
+        }
+
+        // Tags PEI
+        const tagInput = document.getElementById('pei-tag-input');
+        tagInput.addEventListener('keydown', function(e) {
+            if(e.key === 'Enter') { e.preventDefault(); const val = this.value.trim(); if(val && !peiState.tags.includes(val)) { peiState.tags.push(val); renderTags(); } this.value = ''; }
+        });
+        function removerTag(idx) { peiState.tags.splice(idx, 1); renderTags(); }
+        function renderTags() {
+            const container = document.getElementById('pei-tags-container');
+            container.querySelectorAll('.tag-pill').forEach(e => e.remove());
+            peiState.tags.forEach((t, i) => {
+                const pill = document.createElement('div'); pill.className = 'tag-pill';
+                pill.innerHTML = `${t} <svg onclick="removerTag(${i})" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`;
+                container.insertBefore(pill, tagInput);
+            });
+        }
+
+        // Metas PEI
+        function adicionarMetaCard(dados = null) {
+            const id = Date.now() + Math.random().toString().substr(2,4);
+            const card = document.createElement('div'); card.className = 'meta-card'; card.id = `meta-${id}`;
+            const vArea = dados ? dados.area : "Cognitivo/Acadêmico"; const vVerbo = dados ? dados.verbo : "Identificar"; const vObj = dados ? dados.objetivo : ""; const vCrit = dados ? dados.criterio : "80% de acerto em 3 dias";
+            card.innerHTML = `
+                <button class="btn-remover-meta" onclick="document.getElementById('meta-${id}').remove()">${SVG_DEL}</button>
+                <div class="form-group"><label>Área</label><select class="form-control meta-area"><option>Cognitivo/Acadêmico</option><option>Linguagem</option><option>Motor</option><option>Social</option><option>AVD</option></select></div>
+                <div class="form-group"><label>Ação / Verbo</label><select class="form-control meta-verbo"><option>Identificar</option><option>Parear</option><option>Nomear</option><option>Apontar</option><option>Escrever</option><option>Solicitar</option><option>Tolerar</option></select></div>
+                <div class="form-group"><label>Objetivo Específico</label><input type="text" class="form-control meta-obj" placeholder="Ex: numerais de 1 a 10" value="${vObj}"></div>
+                <div class="form-group" style="margin-bottom:0;"><label>Critério de Êxito</label><select class="form-control meta-crit"><option>80% de acerto em 3 dias</option><option>100% independente</option><option>Menos de 2 dicas</option><option>Sem choro/fuga</option></select></div>`;
+            document.getElementById('container-metas').appendChild(card);
+            card.querySelector('.meta-area').value = vArea; card.querySelector('.meta-verbo').value = vVerbo; card.querySelector('.meta-crit').value = vCrit;
+        }
+
+        function salvarPEI() {
+            const metas = [];
+            document.querySelectorAll('.meta-card').forEach(card => {
+                const obj = card.querySelector('.meta-obj').value.trim();
+                if(obj) metas.push({ area: card.querySelector('.meta-area').value, verbo: card.querySelector('.meta-verbo').value, objetivo: obj, criterio: card.querySelector('.meta-crit').value });
+            });
+            if(metas.length === 0) { mostrarAlerta("Adicione pelo menos uma Meta com objetivo preenchido."); return; }
+
+            const getVals = (s) => Array.from(document.querySelectorAll(`${s} input[type="checkbox"]:checked`)).map(cb => cb.value);
+            const rb = document.querySelector(`input[name="comunic"]:checked`);
+
+            const peiData = {
+                alunoId: alunoAtivoId, dataInicio: document.getElementById('pei-data').value, vigencia: document.getElementById('pei-vigencia').value, ativo: document.getElementById('pei-status').checked,
+                comunicacao: rb ? rb.value : "Não especificado", regulacao: getVals('#pei-regulacao'), autonomia: document.getElementById('pei-autonomia').value, interesses: peiState.tags,
+                mediacao: document.getElementById('pei-mediacao').value, adaptFisica: getVals('#pei-adapt-fisica'), adaptCurr: getVals('#pei-adapt-curr'), metas: metas, observacoes: document.getElementById('pei-obs').value
+            };
+
+            const idx = peisSalvos.findIndex(p => p.alunoId === alunoAtivoId);
+            if(idx >= 0) peisSalvos[idx] = peiData; else peisSalvos.push(peiData);
+            
+            localStorage.setItem('ponte_peis', JSON.stringify(peisSalvos));
+            mostrarAlerta("Plano Educacional salvo!"); setTimeout(() => { fecharModal('modal-alerta'); handleAndroidBack(); }, 1200);
+        }
+
+        function renderPEIViewer() {
+            const container = document.getElementById('pei-viewer-conteudo');
+            const p = peisSalvos.find(x => x.alunoId === alunoAtivoId); const aluno = alunos.find(a => a.id === alunoAtivoId);
+            const toBadge = (arr) => arr.map(r => `<span class="pei-badge">${r}</span>`).join('');
+            
+            let htmlMetas = p.metas.map((m, i) => `<div class="pei-meta-box"><div style="font-weight:600;font-size:0.9rem">${i+1}. [${m.area}]</div><div style="font-size:0.95rem;color:var(--text-main);margin:4px 0;">${m.verbo} ${m.objetivo}</div><div style="font-size:0.8rem;color:var(--text-muted)">Critério: ${m.criterio}</div></div>`).join('');
+
+            container.innerHTML = `
+                <div class="report-head">
+                    <div class="report-title">Plano Educacional Individualizado</div>
+                    <div style="font-size:1.1rem; color:var(--pei-color); font-weight:600; margin-bottom:8px;">${aluno.nome}</div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--text-muted)">
+                        <span>Início: ${p.dataInicio.split('-').reverse().join('/')}</span><span style="font-weight:600; color:${p.ativo ? 'var(--success)' : 'var(--text-muted)'}">${p.ativo ? 'ATIVO' : 'RASCUNHO'} (${p.vigencia})</span>
+                    </div>
+                </div>
+                <div class="pei-viewer-section">
+                    <h4>Perfil</h4><div class="pei-p"><strong>Comunicação:</strong> ${p.comunicacao}</div><div class="pei-p"><strong>Autonomia AVD:</strong> Nível ${p.autonomia}/4</div><div class="pei-p"><strong>Regulação:</strong> <div class="pei-badge-list">${toBadge(p.regulacao) || '-'}</div></div><div class="pei-p" style="margin-top:8px;"><strong>Interesses Fortes:</strong> <div class="pei-badge-list">${p.interesses.map(r=>`<span class="pei-badge" style="background:var(--pei-light);color:var(--pei-color);border:none">${r}</span>`).join('') || '-'}</div></div>
+                </div>
+                <div class="pei-viewer-section">
+                    <h4>Suporte e Adaptações</h4><div class="pei-p"><strong>Mediação:</strong> ${p.mediacao}</div><div class="pei-p" style="margin-top:8px;"><strong>Físico/Sensorial:</strong> <div class="pei-badge-list">${toBadge(p.adaptFisica) || 'Sem adaptações'}</div></div><div class="pei-p" style="margin-top:8px;"><strong>Curricular:</strong> <div class="pei-badge-list">${toBadge(p.adaptCurr) || 'Sem adaptações'}</div></div>
+                </div>
+                <div class="pei-viewer-section"><h4>Metas Estruturadas</h4>${htmlMetas}</div>
+                ${p.observacoes ? `<div class="pei-viewer-section"><h4>Observações</h4><div class="pei-p" style="font-style:italic">${p.observacoes}</div></div>` : ''}`;
+        }
+
+        function gerarPDF_PEI() {
+            const p = peisSalvos.find(x => x.alunoId === alunoAtivoId);
+            if (window.AppInventor) window.AppInventor.setWebViewString('GERAR_PDF_PEI:' + JSON.stringify(p));
+            mostrarAlerta("Comando enviado ao app para gerar o PDF do PEI!");
+        }
+
+        // ================= ARQUIVOS E MODAIS =================
         document.getElementById('input-arquivo').addEventListener('change', function(e) {
             for (let file of e.target.files) {
-                const registro = { id: Date.now() + "_" + file.name.replace(/\s/g,''), nome: file.name, tipo: file.type, blob: file, timestamp: Date.now() };
-                const tr = db.transaction(["arquivos"], "readwrite");
-                tr.objectStore("arquivos").put(registro);
-                tr.oncomplete = () => { anexosSessao.push(registro); renderListaAnexos(); };
+                const reg = { id: "arq_" + Date.now(), nome: file.name, tipo: file.type, blob: file, timestamp: Date.now() };
+                const tr = db.transaction(["arquivos"], "readwrite"); tr.objectStore("arquivos").put(reg);
+                tr.oncomplete = () => { anexosTemp.push(reg); document.getElementById('lista-anexos-ui').innerHTML += `<div class="card-anexo"><div style="font-size:0.6rem; text-align:center; padding:10px">DOC</div></div>`; };
             }
             this.value = '';
         });
 
-        function deletarArquivo(id) {
-            const tr = db.transaction(["arquivos"], "readwrite");
-            tr.objectStore("arquivos").delete(id);
-            tr.oncomplete = () => { anexosSessao = anexosSessao.filter(a => a.id !== id); renderListaAnexos(); };
-        }
-
-        function renderListaAnexos() {
-            const container = document.getElementById('lista-anexos-ui');
-            container.innerHTML = '';
-            anexosSessao.forEach(a => {
-                const card = document.createElement('div'); card.className = 'card-anexo';
-                let visual = SVG_FILE;
-                if (a.tipo.startsWith('image/')) {
-                    const url = URL.createObjectURL(a.blob);
-                    visual = `<img src="${url}" class="preview">`;
-                }
-                card.innerHTML = `${visual}<div class="nome-arquivo">${a.nome}</div><button class="btn-remover-anexo" onclick="deletarArquivo('${a.id}')">${SVG_REMOVE}</button>`;
-                container.appendChild(card);
-            });
-        }
-
-        // ================= FLUXO PRINCIPAL =================
-        function inicializarApp() {
-            iniciarBanco();
-            renderizarNatureza();
-            renderListaAlunos();
-            document.getElementById('header-title').innerText = "PONTE";
-        }
-
-        function navegarPara(tela, alunoId = null) {
-            document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
-            document.getElementById('view-' + tela).classList.add('active');
-            
-            if (tela === 'home') { historicoTelas = ['home']; } 
-            else if (tela === 'registro') {
-                historicoTelas.push('registro');
-                resetarFormulario();
-                const aluno = alunos.find(a => a.id === alunoId);
-                document.getElementById('header-title').innerHTML = `<button class="btn-icon" onclick="handleAndroidBack()" style="padding:0; margin-right:4px;"><svg class="icon" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button> Registro: ${aluno.nome.split(' ')[0]}`;
-            }
-        }
-
-        function renderListaAlunos() {
-            const container = document.getElementById('lista-alunos'); container.innerHTML = '';
-            alunos.forEach(aluno => {
-                const card = document.createElement('div'); card.className = 'card-aluno'; card.onclick = () => navegarPara('registro', aluno.id);
-                card.innerHTML = `<div class="avatar"><svg class="icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div><div class="aluno-info"><h3>${aluno.nome}</h3><p>${aluno.info}</p></div>`;
-                container.appendChild(card);
-            });
-        }
-
-        function setEngajamento(nivel) {
-            engajamentoAtual = nivel;
-            document.querySelectorAll('.barra-sinal').forEach(b => {
-                b.classList.remove('active', 'nivel-1', 'nivel-2', 'nivel-3', 'nivel-4', 'nivel-5');
-                if (parseInt(b.getAttribute('data-nivel')) <= nivel) b.classList.add('active', `nivel-${nivel}`);
-            });
-        }
-
-        function salvarRegistro() {
-            if(!selecaoAtual.natureza || !selecaoAtual.area) { mostrarAlerta("Preencha a Natureza e a Área da atividade."); return; }
-            if(engajamentoAtual === 0) { mostrarAlerta("Avalie o engajamento do aluno."); return; }
-            
-            mostrarAlerta("Registro diário salvo e pronto para envio via WebViewString!");
-            setTimeout(() => { fecharModal('modal-alerta'); navegarPara('home'); }, 1500);
-        }
-
-        // Utils
         function abrirModal(id) { document.getElementById(id).classList.add('active'); }
         function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
         function mostrarAlerta(msg) { document.getElementById('alerta-msg').innerText = msg; abrirModal('modal-alerta'); }
-        function salvarConfig() { fecharModal('modal-config'); }
-        function adicionarAluno() { const n = document.getElementById('add-nome').value; if(n) { alunos.push({ id: Date.now(), nome: n, info: "Novo Aluno" }); renderListaAlunos(); fecharModal('modal-add-aluno'); } }
+        function salvarConfig() { config.professor = document.getElementById('cfg-prof').value; config.sala = document.getElementById('cfg-sala').value; localStorage.setItem('ponte_config', JSON.stringify(config)); fecharModal('modal-config'); }
+        function adicionarAluno() { const n = document.getElementById('add-nome').value; if(!n.trim()) return; alunos.push({ id: Date.now(), nome: n }); localStorage.setItem('ponte_alunos', JSON.stringify(alunos)); document.getElementById('add-nome').value = ''; renderListaAlunos(); fecharModal('modal-add-aluno'); }
 
-        window.onload = inicializarApp;
+        window.onload = () => {
+            iniciarBanco(); povoarSelects(); renderListaAlunos();
+            document.querySelectorAll('.modal-overlay').forEach(ov => ov.addEventListener('click', e => { if (e.target === ov && ov.classList.contains('dismissible')) ov.classList.remove('active'); }));
+        };
     </script>
 </body>
 </html>
